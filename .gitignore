@@ -27,3 +27,9 @@ node_modules
 .DS_Store
 
 php/
+
+# Ignore floobits files
+.floo
+.floo_b
+.flooignore
+.flooignore_b
