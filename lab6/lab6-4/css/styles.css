@@ -1,0 +1,29 @@
+ul{
+	font-family: Arial, sans-serif;
+	list-style-type: none;
+}
+
+#success{
+	font-family: Arial, sans-serif;
+	color: green;
+	margin-left: 85px;
+	font-size: 14px;
+}
+
+input[type="submit"]{
+	padding: 3px 8px;
+	background: #eee;
+	margin-left: 85px;
+	cursor: pointer;
+	border: 1px solid #aaa;
+	font-size: 12px;
+}
+
+.error{
+	color:tomato;
+	font-size: 12px;
+}
+
+label{
+	font-size: 13px;
+}
