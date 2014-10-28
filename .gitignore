@@ -35,3 +35,6 @@ php/
 .flooignore_b
 
 ph/
+
+# Ignore jQuery
+jquery-*

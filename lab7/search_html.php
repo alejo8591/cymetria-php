@@ -4,7 +4,9 @@ include 'Simpsons.php';
 
 $search_items = new Simpsons();
 
-$episodes = $search_items->find('Bart');
+// $episodes = $search_items->find('Bart');
+
+$episodes = $search_items->find($_REQUEST['query']);
 
 if(count($episodes) == 0){
 ?>
