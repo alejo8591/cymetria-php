@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="es-ES">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<form>
+		<input type="button" id="login-button" value="Ingresar al Sistema" />
+		<input type="button" id="articles-button-json" value="Ver datos consumidos en formato JSON" />
+		<input type="button" id="articles-button-xml" value="Ver datos consumidos en formato XML" />
+	</form>
+	<div id="article-list">
+	</div><hr />
+	
+	<form>
+		<input type="number" id="json-get-input" placeholder="Consulta por ID" max="5" min="1" />
+		<input type="button" id="json-get-button" value="Consultar consumiendo en formato JSON">
+	</form>
+	<div id="json-get-content"></div><hr />
+
+	
+	<form>
+		<label for="json-post-title">Titulo del Articulo</label>
+		<input type="text" id="json-post-title" name="json-post-title" placeholder="titulo" />
+		
+		<label for="json-post-url">URL del Articulo</label>		
+		<input type="text" id="json-post-url" name="json-post-url" placeholder="URL del Articulo" />
+	
+		<label for="json-post-date">Fecha del Articulo</label>		
+		<input type="text" id="json-post-date" name="json-post-date" placeholder="Fecha del Articulo" />
+		
+		<input type="button" id="json-post-button" value="Crear articulo en formato JSON">
+	</form>
+	<div id="json-post-content"></div><hr />
+
+	<div id="json-update-container">
+		<form>
+		<input type="number" id="json-update-input" placeholder="Consulta por ID" max="5" min="1" />
+		<input type="button" id="json-update-button" value="Consultar articulo para actualizar" />
+	</form>
+
+		<form id="json-update-form">
+		<label for="json-update-title">Titulo del Articulo</label>
+		<input type="text" id="json-update-title" name="json-update-title" placeholder="titulo" />
+		
+		<label for="json-update-url">URL del Articulo</label>		
+		<input type="text" id="json-update-url" name="json-update-url" placeholder="URL del Articulo" />
+	
+		<label for="json-update-date">Fecha del Articulo</label>		
+		<input type="text" id="json-update-date" name="json-update-date" placeholder="Fecha del Articulo" />
+		
+		<input type="button" id="json-update-button-send" value="Actualizar Articulo">
+	</form>
+	<div id="json-update-content"></div><hr />
+	</div>	
+
+	<script src="jquery-1.11.1.min.js"></script>
+	<script>
+		$(document).ready(function(){
+
+			$('#json-update-form').hide();
+
+			$('#login-button').bind('click', function(event){
+
+					setTimeout(function(){
+						$.ajax({
+						url: 'http://localhost:8888/cymetria-php/lab8/api/index.php/auth',
+						type: 'GET'
+	 				}).done(function(data){
+	 					
+	 					console.log(data);
+					
+					}).fail(function(error){
+					
+						console.log(data);
+					
+					});
+
+				}, 100);
+				
+				event.preventDefault();
+
+			});
+
+			$('#articles-button-json').bind('click', function(event){
+
+				$.ajax({
+					url: 'http://localhost:8888/cymetria-php/lab8/api/index.php/articles',
+					type: 'GET',
+					contentType: 'application/json'
+				}).done(function(data){
+
+					console.log(data);
+
+					var i = 0;
+
+					$('#article-list').append('<ul id="json-list"></ul>');
+
+					for (i in data) {
+						$('#json-list').append('<li>id: ' + data[i].id + ', <strong> titulo: ' + data[i].title  + '</strong>, <span>Fecha: ' + data[i].date +'</span></li>');
+					}
+
+				}).fail(function(error){
+					console.log(error);
+				});
+
+				event.preventDefault();
+			});
+
+			$('#articles-button-xml').bind('click', function(event){
+
+				$.ajax({
+					url: 'http://localhost:8888/cymetria-php/lab8/api/index.php/articles',
+					type: 'GET',
+					contentType: 'application/xml'
+				}).done(function(data){
+
+					$('#article-list').append('<ul id="xml-list"></ul>');
+
+					$(data).find('article').each(function(){
+						
+						$('#xml-list').append('<li>id: ' + $(this).find('id').text() + ', <strong> titulo: ' + $(this).find('title').text() + '</strong>, <span>Fecha: ' + $(this).find('date').text() +'</span></li>');
+					
+					});
+
+				}).fail(function(error){
+
+				});
+			});
+
+			$('#json-get-button').bind('click', function(event){
+
+				var id = $('#json-get-input').val() || undefined;
+
+				if (id === '' && id === undefined && id.length <= 0) {
+
+					alert('¡Ingrese un ID correcto!');
+
+				} else {
+
+					$.ajax({
+						url: 'http://localhost:8888/cymetria-php/lab8/api/index.php/articles/' + id,
+						type: 'GET',
+						contentType: 'application/json'
+					}).done(function(data){
+						
+						console.log(data);
+
+						var i = 0;
+						
+						for (i in data) {
+							$('#json-get-content').append(
+								'<ul id="json-get-list">' +
+									'<li>ID: '+ data[i].id +'</li>' +
+									'<li>Titulo: <strong>'+ data[i].title +'</strong></li>' +
+									'<li>Fecha: '+ data[i].date +'</li>' +
+								'</ul>'
+							);							
+						}
+					}).fail(function(error){
+						
+						console.log(error);
+					
+					});
+				}
+			});
+
+			$('#json-post-button').bind('click', function(event){
+
+				var title = $('#json-post-title').val() || undefined;
+				var url = $('#json-post-url').val() || undefined;
+				var date = $('#json-post-date').val() || undefined;
+
+				var data = {};
+
+				if (title === '' && title === undefined && title.length <= 0 && url === '' && url === undefined && url.length <= 0 && date === '' && date === undefined && date.length <= 0) {
+
+					alert('¡Ningún campo puede estar vacio!');
+
+				} else {
+
+					data = {
+						"title": title,
+						"url": url,
+						"date": date
+					};
+
+					$.ajax({
+						url: 'http://localhost:8888/cymetria-php/lab8/api/index.php/articles',
+						type: 'POST',
+						dataType: 'JSON',
+						contentType: 'application/json',
+						data: JSON.stringify(data)
+
+					}).done(function(data){
+
+						
+						console.log(data);
+
+						var i = 0;
+						
+						for (i in data) {
+							$('#json-post-content').append(
+								'<ul id="json-post-create-list">' +
+									'<li>ID: '+ data[i].id +'</li>' +
+									'<li>Titulo: <strong>'+ data[i].title +'</strong></li>' +
+									'<li>Fecha: '+ data[i].date +'</li>' +
+								'</ul>'
+							);							
+						}
+					}).fail(function(error){
+						
+						console.log(error);
+					
+					});
+				}
+				event.preventDefault();
+			});
+			
+			$('#json-update-button').bind('click', function(event){
+
+				var id = $('#json-update-input').val() || undefined; 
+
+				$.ajax({
+						url: 'http://localhost:8888/cymetria-php/lab8/api/index.php/articles/' + id,
+						type: 'GET',
+						contentType: 'application/json'
+					}).done(function(data){
+						
+						console.log(data);
+
+						var i = 0;
+						
+						for (i in data) {
+							localStorage.setItem('id', data[i].id);
+							$('#json-update-title').val(data[i].title);
+							$('#json-update-url').val(data[i].url);
+							$('#json-update-date').val(data[i].date);
+
+						}
+
+						$('#json-update-form').show();
+
+					}).fail(function(error){
+						
+						console.log(error);
+					
+					});
+			});
+
+
+			$('#json-update-button-send').bind('click', function(event){
+
+				var title = $('#json-update-title').val() || undefined;
+				var url = $('#json-update-url').val() || undefined;
+				var date = $('#json-update-date').val() || undefined;
+
+				var data = {};
+
+				if (title === '' && title === undefined && title.length <= 0 && url === '' && url === undefined && url.length <= 0 && date === '' && date === undefined && date.length <= 0) {
+
+					alert('¡Ningún campo puede estar vacio!');
+
+				} else {
+
+					data = {
+						"title": title,
+						"url": url,
+						"date": date
+					};
+
+					$.ajax({
+						url: 'http://localhost:8888/cymetria-php/lab8/api/index.php/articles/' + localStorage.getItem('id'),
+						type: 'PUT',
+						dataType: 'JSON',
+						contentType: 'application/json',
+						data: JSON.stringify(data)
+
+					}).done(function(data){
+
+						
+						console.log(data);
+
+						var i = 0;
+						
+						for (i in data) {
+							$('#json-update-content').append(
+								'<ul id="json-update-create-list">' +
+									'<li>ID: '+ data[i].id +'</li>' +
+									'<li>Titulo: <strong>'+ data[i].title +'</strong></li>' +
+									'<li>Fecha: '+ data[i].date +'</li>' +
+								'</ul>'
+							);							
+						}
+					}).fail(function(error){
+						
+						console.log(error);
+					
+					});
+				}
+				event.preventDefault();
+			});
+		});
+	</script>
+</body>
+</html>
